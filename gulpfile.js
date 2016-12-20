@@ -90,7 +90,7 @@ gulp.task('vendor', function(){
 // inject dependencies
 gulp.task('index', function (done) {
   return gulp.src('./dev/index.html')
-  .pipe(localEnv === 'production' ? inject(gulp.src(['./scripts/bundle.js', './bundle.css'], {read: false, cwd: __dirname + '/dist'})) : gutil.noop())
+  .pipe(localEnv === 'dev' ? inject(gulp.src(['./scripts/bundle.js', './bundle.css'], {read: false, cwd: __dirname + '/dist'})) : gutil.noop())
   .pipe(localEnv === 'production' ? inject(gulp.src(['scripts/bundle.min.js', 'bundle.min.css'], {read: false, cwd: __dirname + '/dist'})) : gutil.noop())
   .pipe(cache(localEnv === 'production' ? prod.noHtmlComments() : gutil.noop()))
   .pipe(gulp.dest('./dist'))
@@ -119,11 +119,11 @@ gulp.task('styles', function(){
     .pipe(cache(sass({
       errLogToConsole: true
     })))
-    .pipe(cache(localEnv === 'production' ? prod.autoprefixer(AUTOPREFIXER_BROWSERS) : gutil.noop()))
-    .pipe(cache(localEnv === 'production' ? prod.minifyCss() : gutil.noop()))
+    .pipe(localEnv === 'production' ? prod.autoprefixer(AUTOPREFIXER_BROWSERS) : gutil.noop())
+    .pipe(localEnv === 'production' ? prod.minifyCss() : gutil.noop())
     .pipe(remember('css'))
     .pipe(concat('/bundle.css'))
-    .pipe(cache(localEnv === 'production' ? prod.rename('bundle.min.css') : gutil.noop()))
+    .pipe(localEnv === 'production' ? prod.rename('bundle.min.css') : gutil.noop())
     .pipe(gulp.dest('./dist'))
     .pipe(browserSync.stream())
 });
@@ -200,10 +200,10 @@ gulp.task('serveLocal', function() {
   });
 
   gulp.watch(['dev/styles.scss', './dev/*.{scss,css,sass,less,stylus}', './dev/**/*.{scss,css,sass,less,stylus}'], ['styles']);
-  gulp.watch(['*.html', './dev/!(index)*.html', './dev/**/!(index)*.html'], ['html-watch'])
+  gulp.watch(['!(index)*.html', './dev/!(index)*.html', './dev/**/!(index)*.html'], ['html-watch'])
   // .on('change', reload);
   gulp.watch(['./dev/*js', './dev/**/*.js'], ['js-watch']);
-  gulp.watch(['./dev/*.html', './dev/**/*.html'], ['index-watch'])
+  gulp.watch(['./dev/index.html'], ['index-watch'])
 
 });
 
