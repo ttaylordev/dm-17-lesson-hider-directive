@@ -15,6 +15,6 @@
         console.log(element);
         console.log(attrs);
       }
-      }
+    }
   });
 })();

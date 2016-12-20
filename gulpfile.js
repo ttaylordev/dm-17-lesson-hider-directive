@@ -4,8 +4,6 @@ const reload = browserSync.reload;
 const concat = require('gulp-concat');
 const gulp = require('gulp');
 const gulpSrc = require('gulp-src-ordered-globs');
-const debug = require('gulp-debug');
-const fs = require('fs');
 const gutil = require('gulp-util');
 const jshint = require('gulp-jshint');
 const plumber = require('gulp-plumber');
@@ -16,6 +14,8 @@ const remember = require('gulp-remember');
 const cache = require('gulp-cache');
 const inject = require('gulp-inject');
 const flatten = require('gulp-flatten');
+// const debug = require('gulp-debug');
+// const fs = require('fs');
 
 
 var localEnv = 'dev';
