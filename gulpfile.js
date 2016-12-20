@@ -20,8 +20,9 @@ const flatten = require('gulp-flatten');
 
 var localEnv = 'dev';
 var prod = {};
-var injectTarget = gulp.src('./dev/index.html');;
+var injectTarget = gulp.src('./dev/index.html');
 var injectSource = gulp.src(['./scripts/bundle.js', './bundle.css'], {read: false, cwd: __dirname + '/dist'})
+
 
 const prodReq = function() {
   if (localEnv === 'production') {
@@ -87,10 +88,13 @@ gulp.task('vendor', function(){
 })
 
 // inject dependencies
-gulp.task('index', function () {
-  return injectTarget
-  .pipe(inject(injectSource))
-    .pipe(gulp.dest('./dist'));
+gulp.task('index', function (done) {
+  return gulp.src('./dev/index.html')
+  .pipe(localEnv === 'production' ? inject(gulp.src(['./scripts/bundle.js', './bundle.css'], {read: false, cwd: __dirname + '/dist'})) : gutil.noop())
+  .pipe(localEnv === 'production' ? inject(gulp.src(['scripts/bundle.min.js', 'bundle.min.css'], {read: false, cwd: __dirname + '/dist'})) : gutil.noop())
+  .pipe(cache(localEnv === 'production' ? prod.noHtmlComments() : gutil.noop()))
+  .pipe(gulp.dest('./dist'))
+  done();
 });
 
 // process html
@@ -175,7 +179,19 @@ gulp.task('js-watch', ['scripts'], function (done){
     done();
 });
 
-gulp.task('serveLocal', function(){
+gulp.task('index-watch', ['index'], function (done){
+    // gulp.start('index')
+    browserSync.reload();
+    done();
+});
+
+gulp.task('html-watch', ['html'], function (done){
+    // gulp.start('index')
+    browserSync.reload();
+    done();
+});
+
+gulp.task('serveLocal', function() {
   browserSync.init({
     injectChanges: true,
     server: {
@@ -184,9 +200,10 @@ gulp.task('serveLocal', function(){
   });
 
   gulp.watch(['dev/styles.scss', './dev/*.{scss,css,sass,less,stylus}', './dev/**/*.{scss,css,sass,less,stylus}'], ['styles']);
-  gulp.watch(['*.html', './dev/*.html', './dev/**/*.html'], ['html','index'])
-  gulp.watch(['*.html', './dev/*.html', './dev/**/*.html']).on('change', reload);
+  gulp.watch(['*.html', './dev/!(index)*.html', './dev/**/!(index)*.html'], ['html-watch'])
+  // .on('change', reload);
   gulp.watch(['./dev/*js', './dev/**/*.js'], ['js-watch']);
+  gulp.watch(['./dev/*.html', './dev/**/*.html'], ['index-watch'])
 
 });
 
